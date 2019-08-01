@@ -17,7 +17,9 @@ limitations under the License.
 package aws
 
 import (
+	"crypto/tls"
 	"io"
+	"net/http"
 	"sort"
 	"strconv"
 	"time"
@@ -122,6 +124,12 @@ func (o *ObjectStore) Init(config map[string]string) error {
 	serverConfig, err := newAWSConfig(s3URL, region, s3ForcePathStyle)
 	if err != nil {
 		return err
+	}
+
+	serverConfig.HTTPClient = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 	}
 
 	serverSession, err := getSession(serverConfig)
